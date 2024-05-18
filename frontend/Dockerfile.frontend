@@ -1,0 +1,29 @@
+# Use an official node image as a parent image
+FROM node:14
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Create necessary directories
+RUN mkdir -p /app/src /app/public
+
+# Copy the public files
+COPY public/ /app/public/
+
+# Copy the src files, including subdirectories
+COPY src/ /app/src/
+
+# Copy remaining files (like .env, .gitignore, etc.)
+COPY . .
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Start the application
+CMD ["npm", "start"]

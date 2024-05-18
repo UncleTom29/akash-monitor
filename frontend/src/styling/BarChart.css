@@ -1,0 +1,26 @@
+/* src/components/BarChart.css */
+.chart-container {
+    width: 100%;
+    margin: 0 auto;
+    height: 250px; /* Adjust this value to change the chart height */
+  }
+  
+  .chart-border {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #fff;
+  }
+  
+  @media (max-width: 768px) {
+    .chart-container {
+      height: 200px; /* Adjust height for smaller screens */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .chart-container {
+      height: 150px; /* Adjust height for smallest screens */
+    }
+  }
+  

@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  couchdb:
+    image: couchdb:latest
+    container_name: my-couchdb
+    ports:
+      - "5984:5984"
+    environment:
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+
+  data-script:
+    build:
+      context: .
+      dockerfile: Dockerfile.script
+    container_name: data-script
+    environment:
+      - COUCHDB_USERNAME=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+      - COUCHDB_URL=http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@my-couchdb:5984
+      - MY_DB_NAME=akash-monitor
+      - REQUEST_INTERVAL=60
+    depends_on:
+      - couchdb
+    volumes:
+      - ./script.sh:/app/script.sh
+      - ./.env:/app/.env
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    container_name: my-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - COUCHDB_URL=http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@my-couchdb:5984
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    container_name: my-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_COUCHDB_URL=http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@my-couchdb:5984
+
+volumes:
+  couchdb_data:

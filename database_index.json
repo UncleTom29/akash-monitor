@@ -1,0 +1,21 @@
+{
+    "views": {
+      "memory_allocated": {
+        "reduce": "_stats",
+        "map": "function (doc) {\n    // Emit the composite key and the value\n    doc.cluster.inventory.cluster.nodes.forEach(function(node){\n      emit([doc.timestamp.split(\"T\")[0], node.name], parseInt(node.resources.memory.quantity.allocated.string, 10))});    \n}"
+      },
+      "cpu_allocated": {
+        "reduce": "_stats",
+        "map": "function (doc) {\n    // Emit the composite key and the value\n    doc.cluster.inventory.cluster.nodes.forEach(function(node){\n      emit([doc.timestamp.split(\"T\")[0], node.name], parseInt(node.resources.cpu.quantity.allocated.string, 10))});    \n}"
+      },
+      "gpu_allocated": {
+        "reduce": "_stats",
+        "map": "function (doc) {\n    // Emit the composite key and the value\n    doc.cluster.inventory.cluster.nodes.forEach(function(node){\n      emit([doc.timestamp.split(\"T\")[0], node.name], parseInt(node.resources.gpu.quantity.allocated.string, 10))});    \n}"
+      },
+      "storage_allocated": {
+        "reduce": "_stats",
+        "map": "function (doc) {\n    // Emit the composite key and the value\n    doc.cluster.inventory.cluster.nodes.forEach(function(node){\n      emit([doc.timestamp.split(\"T\")[0], node.name], parseInt(node.resources.ephemeralStorage.allocated.string, 10))});    \n}"
+      }
+    },
+    "language": "javascript"
+  }

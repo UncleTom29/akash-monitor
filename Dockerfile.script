@@ -1,0 +1,31 @@
+FROM alpine:3.12
+
+# Install necessary dependencies
+RUN apk add --no-cache curl jq
+
+# Download and install grpcurl
+RUN GRPCURL_VERSION=v1.8.5 && \
+    wget https://github.com/fullstorydev/grpcurl/releases/download/${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION#v}_linux_x86_64.tar.gz && \
+    tar -xvzf grpcurl_${GRPCURL_VERSION#v}_linux_x86_64.tar.gz && \
+    mv grpcurl /usr/local/bin/grpcurl && \
+    chmod +x /usr/local/bin/grpcurl && \
+    rm grpcurl_${GRPCURL_VERSION#v}_linux_x86_64.tar.gz
+
+WORKDIR /app
+
+# Copy the .env file into the container
+COPY .env .
+
+# Copy polling script into the container
+COPY script.sh .
+
+# Copy database index into the container
+COPY database_index.json .
+
+# Script execution permission
+RUN chmod +x script.sh
+
+RUN chmod 644 .env
+
+# Run the script
+CMD ["./script.sh"]

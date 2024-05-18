@@ -1,0 +1,114 @@
+---
+version: "2.0"
+
+services:
+  couchdb:
+    image: couchdb:latest
+    expose:
+      - port: 5984
+        as: 5984
+        to:
+          - global
+    env:
+      - COUCHDB_USER=$COUCHDB_USER
+      - COUCHDB_PASSWORD=$COUCHDB_PASSWORD
+    mounts:
+      - volume: couchdb_data
+        path: /opt/couchdb/data
+
+  data-script:
+    image: <your-dockerhub-username>/data-script:latest
+    depends_on:
+      - couchdb
+    env:
+      - COUCHDB_USERNAME=$COUCHDB_USER
+      - COUCHDB_PASSWORD=$COUCHDB_PASSWORD
+      - COUCHDB_URL=http://$COUCHDB_USER:$COUCHDB_PASSWORD@couchdb:5984
+      - MY_DB_NAME=akash-monitor
+      - REQUEST_INTERVAL=60
+    mounts:
+      - volume: script
+        path: /app
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global
+
+  backend:
+    image: <your-dockerhub-username>/backend:latest
+    expose:
+      - port: 3001
+        as: 3001
+        to:
+          - global
+    env:
+      - COUCHDB_URL=http://$COUCHDB_USER:$COUCHDB_PASSWORD@couchdb:5984
+
+  frontend:
+    image: <your-dockerhub-username>/frontend:latest
+    expose:
+      - port: 3000
+        as: 3000
+        to:
+          - global
+    env:
+      - REACT_APP_COUCHDB_URL=http://$COUCHDB_USER:$COUCHDB_PASSWORD@couchdb:5984
+
+profiles:
+  compute:
+    couchdb:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+    data-script:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 1Gi
+        storage:
+          size: 5Gi
+    backend:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 1Gi
+        storage:
+          size: 5Gi
+    frontend:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 1Gi
+        storage:
+          size: 5Gi
+
+deployment:
+  couchdb:
+    couchdb:
+      profile: couchdb
+      count: 1
+    data-script:
+      profile: data-script
+      count: 1
+    backend:
+      profile: backend
+      count: 1
+    frontend:
+      profile: frontend
+      count: 1
+
+volumes:
+  couchdb_data:
+    host:
+      path: /persistent/couchdb_data
+  script:
+    host:
+      path: /persistent/script
